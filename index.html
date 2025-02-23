@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React + TS</title>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "zwave-js": "/dist/zwave-js.js",
+          "@zwave-js/shared": "/dist/zwave-js-shared.js",
+          "@zwave-js/core": "/dist/zwave-js-core.js",
+          "@zwave-js/cc": "/dist/zwave-js-cc.js",
+          "@zwave-js/config": "/dist/zwave-js-config.js",
+          "@zwave-js/nvmedit": "/dist/zwave-js-nvmedit.js",
+          "@zwave-js/serial": "/dist/zwave-js-serial.js",
+          "@zwave-js/serial/serialapi": "/dist/zwave-js-serial-serialapi.js",
+          "zwave-js/safe": "/dist/zwave-js-safe.js",
+          "@zwave-js/shared/safe": "/dist/zwave-js-shared-safe.js",
+          "@zwave-js/core/safe": "/dist/zwave-js-core-safe.js",
+          "@zwave-js/cc/safe": "/dist/zwave-js-cc-safe.js",
+          "@zwave-js/config/safe": "/dist/zwave-js-config-safe.js",
+          "@zwave-js/nvmedit/safe": "/dist/zwave-js-nvmedit-safe.js",
+          "@zwave-js/serial/safe": "/dist/zwave-js-serial-safe.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
