@@ -1365,6 +1365,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@typescript/ata@npm:^0.9.7":
+  version: 0.9.7
+  resolution: "@typescript/ata@npm:0.9.7"
+  peerDependencies:
+    typescript: ">=4.4.4"
+  checksum: 10c0/c1cdc3361c8a6a69a05504ca73f87d625b5832fb8708075db94f57c67aa4eb77c356254de12228da8c146765738e2ada190ddbb06cdf8ad003bed683f19e4303
+  languageName: node
+  linkType: hard
+
 "@vitejs/plugin-react@npm:^4.3.4":
   version: 4.3.4
   resolution: "@vitejs/plugin-react@npm:4.3.4"
@@ -3848,7 +3857,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:~5.7.2":
+"typescript@npm:^5.7.3":
   version: 5.7.3
   resolution: "typescript@npm:5.7.3"
   bin:
@@ -3858,7 +3867,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A~5.7.2#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A^5.7.3#optional!builtin<compat/typescript>":
   version: 5.7.3
   resolution: "typescript@patch:typescript@npm%3A5.7.3#optional!builtin<compat/typescript>::version=5.7.3&hash=5786d5"
   bin:
@@ -4144,6 +4153,7 @@ __metadata:
     "@types/react-dom": "npm:^19.0.3"
     "@types/w3c-web-serial": "npm:^1.0.7"
     "@types/w3c-web-usb": "npm:^1.0.10"
+    "@typescript/ata": "npm:^0.9.7"
     "@vitejs/plugin-react": "npm:^4.3.4"
     "@zwave-js/bindings-browser": "npm:14.3.8-0-pr-7581-401b2ca"
     "@zwave-js/core": "npm:14.3.8-0-pr-7581-401b2ca"
@@ -4159,7 +4169,7 @@ __metadata:
     monaco-editor: "npm:^0.52.2"
     react: "npm:^19.0.0"
     react-dom: "npm:^19.0.0"
-    typescript: "npm:~5.7.2"
+    typescript: "npm:^5.7.3"
     typescript-eslint: "npm:^8.22.0"
     vite: "npm:^6.1.0"
     zwave-js: "npm:14.3.8-0-pr-7581-401b2ca"
