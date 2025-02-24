@@ -2942,6 +2942,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lz-string@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "lz-string@npm:1.5.0"
+  bin:
+    lz-string: bin/bin.js
+  checksum: 10c0/36128e4de34791838abe979b19927c26e67201ca5acf00880377af7d765b38d1c60847e01c5ec61b1a260c48029084ab3893a3925fd6e48a04011364b089991b
+  languageName: node
+  linkType: hard
+
 "make-fetch-happen@npm:^14.0.3":
   version: 14.0.3
   resolution: "make-fetch-happen@npm:14.0.3"
@@ -4264,6 +4273,7 @@ __metadata:
     globals: "npm:^15.14.0"
     install: "npm:^0.13.0"
     lodash: "npm:^4.17.21"
+    lz-string: "npm:^1.5.0"
     monaco-editor: "npm:^0.52.2"
     react: "npm:^19.0.0"
     react-dom: "npm:^19.0.0"

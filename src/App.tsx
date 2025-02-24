@@ -14,6 +14,8 @@ import ansi from "ansicolor";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { VariableSizeList as Window } from "react-window";
 import throttle from "lodash/throttle";
+import LZString from "lz-string";
+import ArrowUpOnSquareIcon from "@heroicons/react/24/outline/ArrowUpOnSquareIcon";
 
 // FIXME: There should be a way to reuse the TS instance from the editor
 import ts from "typescript";
@@ -55,8 +57,18 @@ const typesFilter = [
   "@zwave-js/serial",
 ];
 
+function getDefaultCode() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const codeParam = urlParams.get("code");
+  if (codeParam) {
+    return LZString.decompressFromEncodedURIComponent(codeParam);
+  } else {
+    return defaultCode;
+  }
+}
+
 function App({ esbuild }: AppProps) {
-  const [code, setCode] = useState(defaultCode.trim());
+  const [code, setCode] = useState(getDefaultCode().trim());
   const [hasPort, setHasPort] = useState(!!window.port);
   const [isRunning, setIsRunning] = useState(false);
 
@@ -82,13 +94,17 @@ function App({ esbuild }: AppProps) {
   }
 
   const [autoScroll, setAutoScroll] = useState(true);
-  const scrollToBottom = throttle(() => {
-    // FIXME: Figure out why this scrolls to the item before the last one
-    windowRef.current?.scrollToItem(logs.length - 1, "end");
-  }, 100, {
-    leading: true,
-    trailing: true,
-  });
+  const scrollToBottom = throttle(
+    () => {
+      // FIXME: Figure out why this scrolls to the item before the last one
+      windowRef.current?.scrollToItem(logs.length - 1, "end");
+    },
+    100,
+    {
+      leading: true,
+      trailing: true,
+    }
+  );
   useEffect(() => {
     if (autoScroll && logs.length > 0) {
       scrollToBottom();
@@ -385,8 +401,17 @@ declare const Buffer: typeof Bytes;
     }, 2500);
   };
 
+  const shareCode = (code: string) => {
+    const compressedCode = LZString.compressToEncodedURIComponent(code || "");
+    const newUrl = `${window.location.origin}${window.location.pathname}?code=${compressedCode}`;
+    window.history.replaceState(null, "", newUrl);
+
+    navigator.clipboard.writeText(newUrl);
+    alert("URL copied to clipboard");
+  };
+
   return (
-    <div className="playground">
+    <>
       <div className="toolbar">
         {!isRunning && (
           <button id="run" onClick={handleRunClick}>
@@ -400,6 +425,14 @@ declare const Buffer: typeof Bytes;
             <StopIcon style={{ width: "16px" }} />
           </button>
         )}
+
+        <button title="Share" onClick={() => shareCode(code)}>
+          <ArrowUpOnSquareIcon
+            style={{
+              width: "16px",
+            }}
+          />
+        </button>
 
         {hasPort ? (
           <button
@@ -432,7 +465,6 @@ declare const Buffer: typeof Bytes;
         )}
       </div>
       <Editor
-        height="600px"
         theme="vs-dark"
         defaultLanguage="typescript"
         defaultValue={code}
@@ -440,6 +472,8 @@ declare const Buffer: typeof Bytes;
         onMount={handleEditorDidMount}
         defaultPath="script.ts"
         path="script.ts"
+        width="100%"
+        height="inherit"
       />
       <code id="output">
         <AutoSizer>
@@ -456,7 +490,7 @@ declare const Buffer: typeof Bytes;
           )}
         </AutoSizer>
       </code>
-    </div>
+    </>
   );
 }
 
