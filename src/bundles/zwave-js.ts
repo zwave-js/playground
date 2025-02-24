@@ -26,7 +26,7 @@ const Driver = new Proxy(OriginalDriver, {
       },
     });
 
-    return new target(
+    const ret = new target(
       // Ignore any specified paths
       window.serialBinding,
       // Use the patched options object
@@ -34,6 +34,12 @@ const Driver = new Proxy(OriginalDriver, {
       // Pass anything else through
       ...args.slice(2)
     );
+
+    // Register the driver instances, so they can be stopped later
+    window.drivers ??= [];
+    window.drivers.push(ret);
+
+    return ret;
   },
 });
 

@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "bundle": "script/bundle_zwavejs.mjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "install": "cp node_modules/esbuild-wasm/*.wasm public/"
   },
   "dependencies": {
     "react": "^19.0.0",
@@ -15,9 +17,12 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
+    "@heroicons/react": "^2.2.0",
     "@monaco-editor/react": "^4.7.0",
+    "@types/lodash": "^4.17.15",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
+    "@types/react-window": "^1.8.8",
     "@types/w3c-web-serial": "^1.0.7",
     "@types/w3c-web-usb": "^1.0.10",
     "@typescript/ata": "^0.9.7",
@@ -26,6 +31,7 @@
     "@zwave-js/core": "14.3.8-0-pr-7581-401b2ca",
     "@zwave-js/serial": "14.3.8-0-pr-7581-401b2ca",
     "@zwave-js/shared": "14.3.8-0-pr-7581-401b2ca",
+    "ansicolor": "^2.0.3",
     "esbuild": "^0.25.0",
     "esbuild-plugins-node-modules-polyfill": "^1.6.8",
     "esbuild-wasm": "^0.25.0",
@@ -33,7 +39,11 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.18",
     "globals": "^15.14.0",
+    "install": "^0.13.0",
+    "lodash": "^4.17.21",
     "monaco-editor": "^0.52.2",
+    "react-virtualized-auto-sizer": "^1.0.25",
+    "react-window": "^1.8.11",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.22.0",
     "vite": "^6.1.0",

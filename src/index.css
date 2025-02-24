@@ -46,8 +46,12 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
-button:hover {
+button:hover:not(:disabled) {
   border-color: #646cff;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 button:focus,
 button:focus-visible {

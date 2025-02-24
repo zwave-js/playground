@@ -1,12 +1,19 @@
 import "./global.d.ts";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import Editor, { OnChange, OnMount } from "@monaco-editor/react";
-import { type ZWaveSerialBindingFactory } from "@zwave-js/serial";
 import { createWebSerialPortFactory } from "@zwave-js/bindings-browser/serial";
 import "./setimmediate.js";
 import { setupTypeAcquisition } from "@typescript/ata";
 import defaultCode from "./assets/default.ts?raw";
+import LinkIcon from "@heroicons/react/16/solid/LinkIcon";
+import LinkSlashIcon from "@heroicons/react/16/solid/LinkSlashIcon";
+import PlayIcon from "@heroicons/react/16/solid/PlayIcon";
+import StopIcon from "@heroicons/react/16/solid/StopIcon";
+import ansi from "ansicolor";
+import AutoSizer from "react-virtualized-auto-sizer";
+import { VariableSizeList as Window } from "react-window";
+import throttle from "lodash/throttle";
 
 // FIXME: There should be a way to reuse the TS instance from the editor
 import ts from "typescript";
@@ -14,6 +21,11 @@ import ts from "typescript";
 interface AppProps {
   esbuild: typeof import("esbuild-wasm");
 }
+
+ansi.rgb.blue = [36, 114, 200];
+ansi.rgb.cyan = [17, 168, 205];
+ansi.rgb.green = [13, 188, 121];
+const lineHeight = 18;
 
 const external = [
   // These are bundled at compile time and loaded through an import map:
@@ -43,36 +55,75 @@ const typesFilter = [
   "@zwave-js/serial",
 ];
 
-async function getPort(): Promise<{
-  port: SerialPort;
-  serialBinding: ZWaveSerialBindingFactory;
-}> {
-  const port = await navigator.serial.requestPort({
-    filters: [
-      // CP2102
-      { usbVendorId: 0x10c4, usbProductId: 0xea60 },
-      // Nabu Casa ESP bridge, first EVT revision
-      { usbVendorId: 0x1234, usbProductId: 0x5678 },
-      // Nabu Casa ESP bridge, uses Espressif VID/PID
-      { usbVendorId: 0x303a, usbProductId: 0x4001 },
-    ],
-  });
-
-  await port.open({ baudRate: 115200 });
-
-  const serialBinding = createWebSerialPortFactory(port);
-
-  window.port = port;
-  window.serialBinding = serialBinding;
-
-  return { port, serialBinding };
-}
-
 function App({ esbuild }: AppProps) {
   const [code, setCode] = useState(defaultCode.trim());
+  const [hasPort, setHasPort] = useState(!!window.port);
+  const [isRunning, setIsRunning] = useState(false);
 
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition>>(null);
   const debounceTimeoutRef = useRef<number | null>(null);
+
+  const windowRef = useRef<Window>(null);
+
+  const [logs, setLogs] = useState<string[]>([]);
+  const addLog = (log: string) => {
+    setLogs((logs) => {
+      return [...logs, log];
+    });
+  };
+  const getLogHeight = (index: number) => {
+    return logs[index].split("\n").length * lineHeight;
+  };
+
+  function renderLog({ index, style }) {
+    const log = logs[index];
+
+    return <pre style={style} dangerouslySetInnerHTML={{ __html: log }}></pre>;
+  }
+
+  const [autoScroll, setAutoScroll] = useState(true);
+  const scrollToBottom = throttle(() => {
+    // FIXME: Figure out why this scrolls to the item before the last one
+    windowRef.current?.scrollToItem(logs.length - 1, "end");
+  }, 100, {
+    leading: true,
+    trailing: true,
+  });
+  useEffect(() => {
+    if (autoScroll && logs.length > 0) {
+      scrollToBottom();
+    }
+  }, [logs.length, autoScroll, scrollToBottom]);
+
+  async function getPort(): Promise<void> {
+    const port = await navigator.serial.requestPort({
+      filters: [
+        // CP2102
+        { usbVendorId: 0x10c4, usbProductId: 0xea60 },
+        // Nabu Casa ESP bridge, first EVT revision
+        { usbVendorId: 0x1234, usbProductId: 0x5678 },
+        // Nabu Casa ESP bridge, uses Espressif VID/PID
+        { usbVendorId: 0x303a, usbProductId: 0x4001 },
+      ],
+    });
+
+    await port.open({ baudRate: 115200 });
+    window.port = port;
+
+    setHasPort(true);
+  }
+
+  async function disconnect(): Promise<void> {
+    if (!window.port) return;
+    await window.port.close();
+    window.port = undefined;
+    setHasPort(false);
+  }
+
+  async function ensureBinding(): Promise<void> {
+    const serialBinding = createWebSerialPortFactory(window.port!);
+    window.serialBinding = serialBinding;
+  }
 
   const handleRunClick = async () => {
     try {
@@ -112,10 +163,14 @@ function App({ esbuild }: AppProps) {
         },
       });
 
-      const actualCode = `
+      let actualCode = `
 const Buffer = (await import("@zwave-js/shared")).Bytes;
 ${result.outputFiles[0].text}
 `;
+
+      if (/(const|let|var)\s+driver\s*=/.test(code)) {
+        actualCode += `\nwindow.driver = driver;`;
+      }
 
       // Code in Blob konvertieren und als Modul ausführen
       const blob = new Blob([actualCode], {
@@ -128,15 +183,35 @@ ${result.outputFiles[0].text}
       window.define = undefined;
 
       // Ensure the script has access to the serial port
-      if (!window.port || !window.serialBinding) {
-        await getPort();
+      if (!window.port) await getPort();
+      if (!window.serialBinding) {
+        await ensureBinding();
       }
 
       window.Bytes ??= (await import("@zwave-js/shared")).Bytes;
       window.Buffer = window.Bytes;
 
+      if (!window.originalConsole) {
+        window.originalConsole = console;
+        window.console = Object.assign({}, window.originalConsole, {
+          log: (...args: any[]) => {
+            const pseudoHtml = ansi.parse(args[0]).spans;
+            const spans = pseudoHtml.map((span) => {
+              return `<span style="${span.css.replace(
+                /^background:/,
+                "color:#1e1e1e;background:"
+              )}">${span.text}</span>`;
+            });
+            addLog(spans.join(""));
+          },
+        });
+      }
+
+      setLogs([]);
+
       try {
         await import(/* @vite-ignore */ url);
+        setIsRunning(true);
       } finally {
         URL.revokeObjectURL(url);
         window.define = originalDefine;
@@ -147,6 +222,20 @@ ${result.outputFiles[0].text}
     }
   };
 
+  const handleStopClick = async () => {
+    if (window.drivers) {
+      for (const driver of window.drivers) {
+        try {
+          await driver.destroy();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+    window.drivers = [];
+
+    setIsRunning(false);
+  };
   const handleEditorDidMount: OnMount = async (editor, monaco) => {
     const defaults = monaco.languages.typescript.typescriptDefaults;
 
@@ -297,7 +386,51 @@ declare const Buffer: typeof Bytes;
   };
 
   return (
-    <div>
+    <div className="playground">
+      <div className="toolbar">
+        {!isRunning && (
+          <button id="run" onClick={handleRunClick}>
+            <span>Run</span>
+            <PlayIcon style={{ width: "16px" }} />
+          </button>
+        )}
+        {isRunning && (
+          <button id="stop" onClick={handleStopClick}>
+            <span>Stop</span>
+            <StopIcon style={{ width: "16px" }} />
+          </button>
+        )}
+
+        {hasPort ? (
+          <button
+            id="disconnect"
+            onClick={disconnect}
+            title="Connected"
+            disabled={isRunning}
+          >
+            <LinkIcon
+              style={{
+                width: "16px",
+                color: "darkgreen",
+              }}
+            />
+          </button>
+        ) : (
+          <button
+            id="connect"
+            onClick={getPort}
+            title="Not connected"
+            disabled={isRunning}
+          >
+            <LinkSlashIcon
+              style={{
+                width: "16px",
+                // color: "darkred",
+              }}
+            />
+          </button>
+        )}
+      </div>
       <Editor
         height="600px"
         theme="vs-dark"
@@ -308,12 +441,21 @@ declare const Buffer: typeof Bytes;
         defaultPath="script.ts"
         path="script.ts"
       />
-
-      <button id="run" onClick={handleRunClick}>
-        Run
-      </button>
-
-      <pre id="output"></pre>
+      <code id="output">
+        <AutoSizer>
+          {({ height, width }) => (
+            <Window
+              itemCount={logs.length}
+              itemSize={getLogHeight}
+              width={width}
+              height={height}
+              ref={windowRef}
+            >
+              {renderLog}
+            </Window>
+          )}
+        </AutoSizer>
+      </code>
     </div>
   );
 }
