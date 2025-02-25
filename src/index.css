@@ -31,6 +31,23 @@ body {
   overflow: hidden;
 }
 
+#root {
+  max-width: 1280px;
+  height: 100vh;
+  overflow: hidden;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 1rem;
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: stretch;
+  gap: 2px;
+  text-align: left;
+}
+
 h1 {
   font-size: 3.2em;
   line-height: 1.1;

@@ -1,24 +1,38 @@
-import { StrictMode } from "react";
+import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import App from "./App.tsx";
+import { NoSerial } from "./NoSerial.tsx";
+import { ConfirmLoad } from "./ConfirmLoad.tsx";
 
-import * as esbuild from "esbuild-wasm";
+const App = lazy(() => import("./App.tsx"));
 
-await esbuild.initialize({
-  wasmURL: "/esbuild.wasm",
-});
+const search = new URLSearchParams(window.location.search);
+const isEmbed = search.get("embed") != null;
+const confirmedEmbed = search.get("load") != null;
 
-const isEmbed =
-  new URLSearchParams(window.location.search).get("embed") != null;
+if ("serial" in navigator) {
+  if (isEmbed && !confirmedEmbed) {
+    createRoot(document.getElementById("root")!).render(<ConfirmLoad />);
+  } else {
+    const esbuild = await import("esbuild-wasm");
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <App
-      esbuild={esbuild}
-      showShareButton={!isEmbed}
-      showOpenInNewWindowButton={isEmbed}
-      showEmbedButton={!isEmbed}
-    />
-  </StrictMode>
-);
+    await esbuild.initialize({
+      wasmURL: "/esbuild.wasm",
+    });
+
+    createRoot(document.getElementById("root")!).render(
+      <StrictMode>
+        <Suspense fallback={<div>Loading...</div>}>
+          <App
+            esbuild={esbuild}
+            showShareButton={!isEmbed}
+            showOpenInNewWindowButton={isEmbed}
+            showEmbedButton={!isEmbed}
+          />
+        </Suspense>
+      </StrictMode>
+    );
+  }
+} else {
+  createRoot(document.getElementById("root")!).render(<NoSerial />);
+}

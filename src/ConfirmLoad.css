@@ -1,0 +1,9 @@
+#confirm-load {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: 2em;
+  border-radius: 8px;
+  border: 1px solid rgba;
+  padding: 0.5em 2em
+}
