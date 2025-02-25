@@ -63,6 +63,7 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+  position: relative;
 }
 button:hover:not(:disabled) {
   border-color: #646cff;

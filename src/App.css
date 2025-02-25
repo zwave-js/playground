@@ -38,3 +38,15 @@ section {
   padding: 0.5rem;
   white-space: pre-wrap;
 }
+
+.badge {
+  --size: 12px;
+  position: absolute;
+  right: calc(0px - var(--size) / 3);
+  top: calc(0px - var(--size) / 3);
+  box-sizing: border-box;
+  border-radius: 50%;
+  width: var(--size);
+  height: var(--size);
+  background-color: red;
+}

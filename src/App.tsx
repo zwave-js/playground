@@ -523,6 +523,11 @@ declare const Buffer: typeof Bytes;
               color: logsVisible ? "lightgreen" : "inherit",
             }}
           />
+          {
+            !logsVisible && logs.length > 0 && (
+              <span className="badge"></span>
+            )
+          }
         </button>
 
         {showShareButton && (
