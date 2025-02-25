@@ -1,7 +1,7 @@
 import "./global.d.ts";
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
-import Editor, { OnChange, OnMount, Monaco } from "@monaco-editor/react";
+import Editor, { OnChange, OnMount } from "@monaco-editor/react";
 import { createWebSerialPortFactory } from "@zwave-js/bindings-browser/serial";
 import "./setimmediate.js";
 import { setupTypeAcquisition } from "@typescript/ata";
@@ -16,13 +16,16 @@ import { VariableSizeList as Window } from "react-window";
 import throttle from "lodash/throttle";
 import LZString from "lz-string";
 import ArrowUpOnSquareIcon from "@heroicons/react/24/outline/ArrowUpOnSquareIcon";
-import NewspaperIcon from "@heroicons/react/24/outline/NewspaperIcon";
+import CommandLineIcon from "@heroicons/react/24/outline/CommandLineIcon";
+import ArrowTopRightOnSquareIcon from "@heroicons/react/24/outline/ArrowTopRightOnSquareIcon";
 
 // FIXME: There should be a way to reuse the TS instance from the editor
 import ts from "typescript";
 
 interface AppProps {
   esbuild: typeof import("esbuild-wasm");
+  showShareButton?: boolean;
+  showOpenInNewWindowButton?: boolean;
 }
 
 ansi.rgb.blue = [36, 114, 200];
@@ -68,7 +71,11 @@ function getDefaultCode() {
   }
 }
 
-function App({ esbuild }: AppProps) {
+function App({
+  esbuild,
+  showShareButton,
+  showOpenInNewWindowButton,
+}: AppProps) {
   const [code, setCode] = useState(getDefaultCode().trim());
   const [hasPort, setHasPort] = useState(!!window.port);
   const [isRunning, setIsRunning] = useState(false);
@@ -438,6 +445,12 @@ declare const Buffer: typeof Bytes;
     alert("URL copied to clipboard");
   };
 
+  const openInNewWindow = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("embed");
+    window.open(url.toString(), "_blank");
+  };
+
   return (
     <>
       <div className="toolbar">
@@ -459,7 +472,7 @@ declare const Buffer: typeof Bytes;
           title={logsVisible ? "Hide logs" : "Show logs"}
           onClick={() => setLogsVisible((val) => !val)}
         >
-          <NewspaperIcon
+          <CommandLineIcon
             style={{
               width: "20px",
               color: logsVisible ? "lightgreen" : "inherit",
@@ -467,17 +480,33 @@ declare const Buffer: typeof Bytes;
           />
         </button>
 
-        <button
-          className="icon-button"
-          title="Share"
-          onClick={() => shareCode(code)}
-        >
-          <ArrowUpOnSquareIcon
-            style={{
-              width: "20px",
-            }}
-          />
-        </button>
+        {showShareButton && (
+          <button
+            className="icon-button"
+            title="Share"
+            onClick={() => shareCode(code)}
+          >
+            <ArrowUpOnSquareIcon
+              style={{
+                width: "20px",
+              }}
+            />
+          </button>
+        )}
+
+        {showOpenInNewWindowButton && (
+          <button
+            className="icon-button"
+            title="Open in new window"
+            onClick={openInNewWindow}
+          >
+            <ArrowTopRightOnSquareIcon
+              style={{
+                width: "20px",
+              }}
+            />
+          </button>
+        )}
 
         {hasPort ? (
           <button

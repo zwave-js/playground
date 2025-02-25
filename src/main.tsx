@@ -9,8 +9,15 @@ await esbuild.initialize({
   wasmURL: "/esbuild.wasm",
 });
 
+const isEmbed =
+  new URLSearchParams(window.location.search).get("embed") != null;
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App esbuild={esbuild} />
+    <App
+      esbuild={esbuild}
+      showShareButton={!isEmbed}
+      showOpenInNewWindowButton={isEmbed}
+    />
   </StrictMode>
 );
