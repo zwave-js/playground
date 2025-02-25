@@ -17,6 +17,7 @@ import throttle from "lodash/throttle";
 import LZString from "lz-string";
 import ArrowUpOnSquareIcon from "@heroicons/react/24/outline/ArrowUpOnSquareIcon";
 import CommandLineIcon from "@heroicons/react/24/outline/CommandLineIcon";
+import CodeBracketSquareIcon from "@heroicons/react/24/outline/CodeBracketSquareIcon";
 import ArrowTopRightOnSquareIcon from "@heroicons/react/24/outline/ArrowTopRightOnSquareIcon";
 
 // FIXME: There should be a way to reuse the TS instance from the editor
@@ -26,6 +27,7 @@ interface AppProps {
   esbuild: typeof import("esbuild-wasm");
   showShareButton?: boolean;
   showOpenInNewWindowButton?: boolean;
+  showEmbedButton?: boolean;
 }
 
 ansi.rgb.blue = [36, 114, 200];
@@ -75,6 +77,7 @@ function App({
   esbuild,
   showShareButton,
   showOpenInNewWindowButton,
+  showEmbedButton,
 }: AppProps) {
   const [code, setCode] = useState(getDefaultCode().trim());
   const [hasPort, setHasPort] = useState(!!window.port);
@@ -445,6 +448,16 @@ declare const Buffer: typeof Bytes;
     alert("URL copied to clipboard");
   };
 
+  const copyEmbedURL = (code: string) => {
+    const compressedCode = LZString.compressToEncodedURIComponent(code || "");
+    const url = new URL(window.location.href);
+    url.searchParams.set("embed", "");
+    url.searchParams.set("code", compressedCode);
+
+    navigator.clipboard.writeText(url.toString());
+    alert("Embed URL copied to clipboard");
+  };
+
   const openInNewWindow = () => {
     const url = new URL(window.location.href);
     url.searchParams.delete("embed");
@@ -464,47 +477,6 @@ declare const Buffer: typeof Bytes;
           <button id="stop" onClick={handleStopClick}>
             <span>Stop</span>
             <StopIcon style={{ width: "16px" }} />
-          </button>
-        )}
-
-        <button
-          className="icon-button"
-          title={logsVisible ? "Hide logs" : "Show logs"}
-          onClick={() => setLogsVisible((val) => !val)}
-        >
-          <CommandLineIcon
-            style={{
-              width: "20px",
-              color: logsVisible ? "lightgreen" : "inherit",
-            }}
-          />
-        </button>
-
-        {showShareButton && (
-          <button
-            className="icon-button"
-            title="Share"
-            onClick={() => shareCode(code)}
-          >
-            <ArrowUpOnSquareIcon
-              style={{
-                width: "20px",
-              }}
-            />
-          </button>
-        )}
-
-        {showOpenInNewWindowButton && (
-          <button
-            className="icon-button"
-            title="Open in new window"
-            onClick={openInNewWindow}
-          >
-            <ArrowTopRightOnSquareIcon
-              style={{
-                width: "20px",
-              }}
-            />
           </button>
         )}
 
@@ -535,6 +507,62 @@ declare const Buffer: typeof Bytes;
               style={{
                 width: "20px",
                 // color: "darkred",
+              }}
+            />
+          </button>
+        )}
+
+        <button
+          className="icon-button"
+          id="toggle-logs"
+          title={logsVisible ? "Hide logs" : "Show logs"}
+          onClick={() => setLogsVisible((val) => !val)}
+        >
+          <CommandLineIcon
+            style={{
+              width: "20px",
+              color: logsVisible ? "lightgreen" : "inherit",
+            }}
+          />
+        </button>
+
+        {showShareButton && (
+          <button
+            className="icon-button"
+            title="Share"
+            onClick={() => shareCode(code)}
+          >
+            <ArrowUpOnSquareIcon
+              style={{
+                width: "20px",
+              }}
+            />
+          </button>
+        )}
+
+        {showEmbedButton && (
+          <button
+            className="icon-button"
+            title="Copy embed URL"
+            onClick={() => copyEmbedURL(code)}
+          >
+            <CodeBracketSquareIcon
+              style={{
+                width: "20px",
+              }}
+            />
+          </button>
+        )}
+
+        {showOpenInNewWindowButton && (
+          <button
+            className="icon-button"
+            title="Open in new window"
+            onClick={openInNewWindow}
+          >
+            <ArrowTopRightOnSquareIcon
+              style={{
+                width: "20px",
               }}
             />
           </button>

@@ -18,6 +18,7 @@ createRoot(document.getElementById("root")!).render(
       esbuild={esbuild}
       showShareButton={!isEmbed}
       showOpenInNewWindowButton={isEmbed}
+      showEmbedButton={!isEmbed}
     />
   </StrictMode>
 );

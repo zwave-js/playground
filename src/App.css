@@ -18,16 +18,24 @@
 .toolbar {
   /* background: #1f1f1f; */
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: flex-end;
   gap: 2px;
 }
 
 #run,
 #stop {
-  margin-right: auto;
   display: inline-flex;
   gap: 0.35em;
+}
+
+#connect,
+#disconnect {
+  margin-right: auto;
+}
+
+#toggle-logs {
+  margin-right: auto;
 }
 
 /* Editor */
