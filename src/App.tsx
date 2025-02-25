@@ -1,7 +1,7 @@
 import "./global.d.ts";
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
-import Editor, { OnChange, OnMount } from "@monaco-editor/react";
+import Editor, { OnChange, OnMount, Monaco } from "@monaco-editor/react";
 import { createWebSerialPortFactory } from "@zwave-js/bindings-browser/serial";
 import "./setimmediate.js";
 import { setupTypeAcquisition } from "@typescript/ata";
@@ -16,6 +16,7 @@ import { VariableSizeList as Window } from "react-window";
 import throttle from "lodash/throttle";
 import LZString from "lz-string";
 import ArrowUpOnSquareIcon from "@heroicons/react/24/outline/ArrowUpOnSquareIcon";
+import NewspaperIcon from "@heroicons/react/24/outline/NewspaperIcon";
 
 // FIXME: There should be a way to reuse the TS instance from the editor
 import ts from "typescript";
@@ -75,7 +76,11 @@ function App({ esbuild }: AppProps) {
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition>>(null);
   const debounceTimeoutRef = useRef<number | null>(null);
 
+  const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
+
   const windowRef = useRef<Window>(null);
+
+  const [logsVisible, setLogsVisible] = useState(true);
 
   const [logs, setLogs] = useState<string[]>([]);
   const addLog = (log: string) => {
@@ -252,7 +257,30 @@ ${result.outputFiles[0].text}
 
     setIsRunning(false);
   };
+
+  // Resize the editor when the window is resized
+  useEffect(() => {
+    window.addEventListener("resize", resizeEditor);
+    return () => {
+      window.removeEventListener("resize", resizeEditor);
+    };
+  }, []);
+
+  const resizeEditor = () => {
+    if (!editorRef.current) return;
+    // Set the editor to a small size, then immediately let it find the correct size
+    // Otherwise it won't shrink
+    editorRef.current.layout({ width: 100, height: 100 }, true);
+    editorRef.current.layout(undefined, true);
+  };
+
+  useEffect(() => {
+    resizeEditor();
+  }, [logsVisible]);
+
   const handleEditorDidMount: OnMount = async (editor, monaco) => {
+    editorRef.current = editor;
+
     const defaults = monaco.languages.typescript.typescriptDefaults;
 
     defaults.setCompilerOptions({
@@ -426,16 +454,34 @@ declare const Buffer: typeof Bytes;
           </button>
         )}
 
-        <button title="Share" onClick={() => shareCode(code)}>
+        <button
+          className="icon-button"
+          title={logsVisible ? "Hide logs" : "Show logs"}
+          onClick={() => setLogsVisible((val) => !val)}
+        >
+          <NewspaperIcon
+            style={{
+              width: "20px",
+              color: logsVisible ? "lightgreen" : "inherit",
+            }}
+          />
+        </button>
+
+        <button
+          className="icon-button"
+          title="Share"
+          onClick={() => shareCode(code)}
+        >
           <ArrowUpOnSquareIcon
             style={{
-              width: "16px",
+              width: "20px",
             }}
           />
         </button>
 
         {hasPort ? (
           <button
+            className="icon-button"
             id="disconnect"
             onClick={disconnect}
             title="Connected"
@@ -443,13 +489,14 @@ declare const Buffer: typeof Bytes;
           >
             <LinkIcon
               style={{
-                width: "16px",
+                width: "20px",
                 color: "darkgreen",
               }}
             />
           </button>
         ) : (
           <button
+            className="icon-button"
             id="connect"
             onClick={getPort}
             title="Not connected"
@@ -457,7 +504,7 @@ declare const Buffer: typeof Bytes;
           >
             <LinkSlashIcon
               style={{
-                width: "16px",
+                width: "20px",
                 // color: "darkred",
               }}
             />
@@ -475,7 +522,7 @@ declare const Buffer: typeof Bytes;
         width="100%"
         height="inherit"
       />
-      <code id="output">
+      <code id="output" style={{ display: logsVisible ? "block" : "none" }}>
         <AutoSizer>
           {({ height, width }) => (
             <Window
