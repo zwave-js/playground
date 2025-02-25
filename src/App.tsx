@@ -449,11 +449,9 @@ declare const Buffer: typeof Bytes;
 
   const copyEmbedURL = (code: string) => {
     const compressedCode = LZString.compressToEncodedURIComponent(code || "");
-    const url = new URL(window.location.href);
-    url.searchParams.set("embed", "");
-    url.searchParams.set("code", compressedCode);
+    const newUrl = `${window.location.origin}${window.location.pathname}?embed&code=${compressedCode}`;
 
-    navigator.clipboard.writeText(url.toString());
+    navigator.clipboard.writeText(newUrl);
     alert("Embed URL copied to clipboard");
   };
 
