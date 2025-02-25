@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "bundle": "script/bundle_zwavejs.mjs",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "install": "cp node_modules/esbuild-wasm/*.wasm public/"

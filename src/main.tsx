@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { NoSerial } from "./NoSerial.tsx";
 import { ConfirmLoad } from "./ConfirmLoad.tsx";
+import * as esbuild from "esbuild-wasm";
 
 const App = lazy(() => import("./App.tsx"));
 
@@ -14,8 +15,6 @@ if ("serial" in navigator) {
   if (isEmbed && !confirmedEmbed) {
     createRoot(document.getElementById("root")!).render(<ConfirmLoad />);
   } else {
-    const esbuild = await import("esbuild-wasm");
-
     await esbuild.initialize({
       wasmURL: "/esbuild.wasm",
     });
