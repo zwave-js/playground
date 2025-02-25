@@ -237,6 +237,7 @@ ${result.outputFiles[0].text}
       }
 
       setLogs([]);
+      windowRef.current?.resetAfterIndex(0);
 
       try {
         await import(/* @vite-ignore */ url);
