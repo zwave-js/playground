@@ -3,7 +3,8 @@ import logoUrl from "./assets/Z-Logo.png";
 
 export const ConfirmLoad = () => {
   const handleClick = () => {
-    window.location.href = `${window.location.href}&load`;
+    localStorage.setItem("loadEmbedded", "true");
+    window.location.reload();
   };
   return (
     <button id="confirm-load" onClick={handleClick}>

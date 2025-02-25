@@ -9,17 +9,19 @@ const App = lazy(() => import("./App.tsx"));
 
 const search = new URLSearchParams(window.location.search);
 const isEmbed = search.get("embed") != null;
-const confirmedEmbed = search.get("load") != null;
+const confirmedEmbed = localStorage.getItem("loadEmbedded") === "true";
+
+const root = createRoot(document.getElementById("root")!);
 
 if ("serial" in navigator) {
   if (isEmbed && !confirmedEmbed) {
-    createRoot(document.getElementById("root")!).render(<ConfirmLoad />);
+    root.render(<ConfirmLoad />);
   } else {
     await esbuild.initialize({
       wasmURL: "/esbuild.wasm",
     });
 
-    createRoot(document.getElementById("root")!).render(
+    root.render(
       <StrictMode>
         <Suspense fallback={<div>Loading...</div>}>
           <App
@@ -27,11 +29,12 @@ if ("serial" in navigator) {
             showShareButton={!isEmbed}
             showOpenInNewWindowButton={isEmbed}
             showEmbedButton={!isEmbed}
+            defaultLogsVisible={!isEmbed}
           />
         </Suspense>
       </StrictMode>
     );
   }
 } else {
-  createRoot(document.getElementById("root")!).render(<NoSerial />);
+  root.render(<NoSerial />);
 }

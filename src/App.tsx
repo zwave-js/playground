@@ -28,6 +28,7 @@ interface AppProps {
   showShareButton?: boolean;
   showOpenInNewWindowButton?: boolean;
   showEmbedButton?: boolean;
+  defaultLogsVisible?: boolean;
 }
 
 ansi.rgb.blue = [36, 114, 200];
@@ -78,6 +79,7 @@ function App({
   showShareButton,
   showOpenInNewWindowButton,
   showEmbedButton,
+  defaultLogsVisible,
 }: AppProps) {
   const [code, setCode] = useState(getDefaultCode().trim());
   const [hasPort, setHasPort] = useState(!!window.port);
@@ -90,7 +92,7 @@ function App({
 
   const windowRef = useRef<Window>(null);
 
-  const [logsVisible, setLogsVisible] = useState(true);
+  const [logsVisible, setLogsVisible] = useState(defaultLogsVisible ?? true);
 
   const [logs, setLogs] = useState<string[]>([]);
   const addLog = (log: string) => {
@@ -194,14 +196,10 @@ function App({
         },
       });
 
-      let actualCode = `
+      const actualCode = `
 const Buffer = (await import("@zwave-js/shared")).Bytes;
 ${result.outputFiles[0].text}
 `;
-
-      if (/(const|let|var)\s+driver\s*=/.test(code)) {
-        actualCode += `\nwindow.driver = driver;`;
-      }
 
       // Code in Blob konvertieren und als Modul ausführen
       const blob = new Blob([actualCode], {
