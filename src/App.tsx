@@ -74,6 +74,25 @@ function getDefaultCode() {
   }
 }
 
+function formatLog(log: string) {
+  const pseudoHtml = ansi.parse(log).spans;
+  const spans = pseudoHtml.map((span) => {
+    return `<span style="${span.css.replace(
+      /^background:/,
+      "color:#1e1e1e;background:"
+    )}">${span.text}</span>`;
+  });
+  return spans.join("");
+}
+
+function getErrorMessage(e: Error): string {
+  let ret = e.valueOf() as string;
+  if (e.stack) {
+    ret += e.stack.slice(e.stack.indexOf("\n"));
+  }
+  return ret;
+}
+
 function App({
   esbuild,
   showShareButton,
@@ -158,6 +177,18 @@ function App({
     window.serialBinding = serialBinding;
   }
 
+  const onGlobalError = ({ error }: ErrorEvent) => {
+    addLog(formatLog(ansi.red(getErrorMessage(error))));
+  };
+
+  const onUnhandledRejection = ({ reason }: PromiseRejectionEvent) => {
+    if (reason instanceof Error) {
+      addLog(formatLog(ansi.red(getErrorMessage(reason))));
+    } else {
+      addLog(formatLog(ansi.red(String(reason))));
+    }
+  };
+
   const handleRunClick = async () => {
     try {
       const patchImportsPlugin = {
@@ -224,20 +255,22 @@ ${result.outputFiles[0].text}
         window.originalConsole = console;
         window.console = Object.assign({}, window.originalConsole, {
           log: (...args: any[]) => {
-            const pseudoHtml = ansi.parse(args[0]).spans;
-            const spans = pseudoHtml.map((span) => {
-              return `<span style="${span.css.replace(
-                /^background:/,
-                "color:#1e1e1e;background:"
-              )}">${span.text}</span>`;
-            });
-            addLog(spans.join(""));
+            addLog(formatLog(args[0]));
+          },
+          warn: (...args: any[]) => {
+            addLog(formatLog(args[0]));
+          },
+          error: (...args: any[]) => {
+            addLog(formatLog(args[0]));
           },
         });
       }
 
       setLogs([]);
       windowRef.current?.resetAfterIndex(0);
+
+      window.addEventListener("error", onGlobalError);
+      window.addEventListener("unhandledrejection", onUnhandledRejection);
 
       try {
         await import(/* @vite-ignore */ url);
@@ -249,6 +282,8 @@ ${result.outputFiles[0].text}
     } catch (error: any) {
       alert(error.message + "\n" + error.stack);
       console.error(error);
+      window.removeEventListener("error", onGlobalError);
+      window.removeEventListener("unhandledrejection", onUnhandledRejection);
     }
   };
 
@@ -317,7 +352,10 @@ declare const Buffer: typeof Bytes;
         // Filter out requests for external modules
         const moduleName = /\/npm\/(.+?)@/.exec(input)?.[1];
         if (!moduleName || !typesFilter.includes(moduleName)) {
-          console.warn("filtered request for ", input);
+          (window.originalConsole ?? console).warn(
+            "filtered request for ",
+            input
+          );
           return new Response(null, {
             status: 404,
             statusText: "Not Found",
@@ -521,11 +559,7 @@ declare const Buffer: typeof Bytes;
               color: logsVisible ? "lightgreen" : "inherit",
             }}
           />
-          {
-            !logsVisible && logs.length > 0 && (
-              <span className="badge"></span>
-            )
-          }
+          {!logsVisible && logs.length > 0 && <span className="badge"></span>}
         </button>
 
         {showShareButton && (
