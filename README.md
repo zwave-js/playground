@@ -1,6 +1,6 @@
 # Z-Wave JS Playground
 
-An interactive, browser-based sandbox to build and test scripts to interact with a Z-Wave controller.
+An interactive, browser-based sandbox to build, test and share scripts for interacting with a Z-Wave controller.
 
 **Fully-local:** All code is executed locally in your browser, and is **not** sent to any server. Only type declarations are fetched from [jsDelivr](https://www.jsdelivr.com/).
 
