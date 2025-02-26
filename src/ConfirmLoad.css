@@ -5,5 +5,24 @@
   gap: 2em;
   border-radius: 8px;
   border: 1px solid rgba;
-  padding: 0.5em 2em
+  padding: 0.5em 2em;
+
+  & .loader-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    & > * {
+      display: block;
+    }
+
+    & :first-child {
+      margin-bottom: 0.5em;
+    }
+
+    & span + span {
+      font-weight: normal;
+      font-size: 85%;
+    }
+  }
 }
