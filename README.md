@@ -1,50 +1,31 @@
-# React + TypeScript + Vite
+# Z-Wave JS Playground
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An interactive, browser-based sandbox to build and test scripts to interact with a Z-Wave controller.
 
-Currently, two official plugins are available:
+**Fully-local:** All code is executed locally in your browser, and is **not** sent to any server. Only type declarations are fetched from [jsDelivr](https://www.jsdelivr.com/).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Rich editor:** The built-in editor provides syntax highlighting, code completion, and error checking.
 
-## Expanding the ESLint configuration
+**Sharing and embedding:** Share your scripts with others by copying the URL, or embed them in an iframe your own website.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+![Screenshot](./docs/screenshot.png)
 
-- Configure the top-level `parserOptions` property like this:
+## How it works
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- [esbuild](https://esbuild.github.io/) is used to pre-bundle Z-Wave JS while eliminating browser-incompatible dependencies and transpile your TypeScript code in the browser
+- [Monaco Editor](https://microsoft.github.io/monaco-editor/) powers the code editor
+- [TypeScript](https://www.npmjs.com/package/typescript) and [@typescript/ata](https://www.npmjs.com/package/@typescript/ata) are used to automatically download the type definitions
+- [@zwave-js/bindings-browser](https://www.npmjs.com/package/@zwave-js/bindings-browser) allows Z-Wave JS to use the browser's Web Serial and storage APIs
+
+When you press **Run**, the code is transpiled locally using `esbuild`. The playground hooks it up to a serial port (requires a Chromium-based browser) and executes it. The browser console output is redirected to the console panel.
+
+Some of these dependencies are pretty big (roughly 30 MB total), so the initial load might take a while. When embedded, the playground will ask first whether it should load the dependencies.
+
+## Embedding
+
+You can embed the playground in your own website using an iframe. Click the **Embed** button to get the URL for the iframe. Because the playground requires access to the serial port, these permissions must be granted explicitly:
+```html
+<iframe allow="serial" src="..."></iframe>
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+We recommend a height of at least `750px` for the iframe.
