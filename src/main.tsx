@@ -30,6 +30,7 @@ if ("serial" in navigator) {
             showOpenInNewWindowButton={isEmbed}
             showEmbedButton={!isEmbed}
             defaultLogsVisible={!isEmbed}
+            showHeader={!isEmbed}
           />
         </Suspense>
       </StrictMode>

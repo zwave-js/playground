@@ -22,12 +22,14 @@ import ArrowTopRightOnSquareIcon from "@heroicons/react/24/outline/ArrowTopRight
 
 // FIXME: There should be a way to reuse the TS instance from the editor
 import ts from "typescript";
+import { Header } from "./Header.tsx";
 
 interface AppProps {
   esbuild: typeof import("esbuild-wasm");
   showShareButton?: boolean;
   showOpenInNewWindowButton?: boolean;
   showEmbedButton?: boolean;
+  showHeader?: boolean;
   defaultLogsVisible?: boolean;
 }
 
@@ -99,6 +101,7 @@ function App({
   showOpenInNewWindowButton,
   showEmbedButton,
   defaultLogsVisible,
+  showHeader,
 }: AppProps) {
   const [code, setCode] = useState(getDefaultCode().trim());
   const [hasPort, setHasPort] = useState(!!window.port);
@@ -501,6 +504,7 @@ declare const Buffer: typeof Bytes;
 
   return (
     <>
+      {showHeader && <Header />}
       <div className="toolbar">
         {!isRunning && (
           <button id="run" onClick={handleRunClick}>
