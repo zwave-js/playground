@@ -27,10 +27,10 @@
     "@types/w3c-web-usb": "^1.0.10",
     "@typescript/ata": "^0.9.7",
     "@vitejs/plugin-react": "^4.3.4",
-    "@zwave-js/bindings-browser": "15.0.0-beta.1",
-    "@zwave-js/core": "15.0.0-beta.1",
-    "@zwave-js/serial": "15.0.0-beta.1",
-    "@zwave-js/shared": "15.0.0-beta.1",
+    "@zwave-js/bindings-browser": "15.0.0",
+    "@zwave-js/core": "15.0.0",
+    "@zwave-js/serial": "15.0.0",
+    "@zwave-js/shared": "15.0.0",
     "ansicolor": "^2.0.3",
     "esbuild": "^0.25.0",
     "esbuild-plugins-node-modules-polyfill": "^1.6.8",
@@ -49,7 +49,7 @@
     "typescript-eslint": "^8.22.0",
     "vite": "^6.1.0",
     "vite-plugin-svgr": "^4.3.0",
-    "zwave-js": "15.0.0-beta.1"
+    "zwave-js": "15.0.0"
   },
   "packageManager": "yarn@4.6.0"
 }

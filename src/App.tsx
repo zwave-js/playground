@@ -373,7 +373,7 @@ declare const Buffer: typeof Bytes;
         ) {
           return new Response(
             JSON.stringify({
-              version: "15.0.0-beta.1",
+              version: "15.0.0",
             })
           );
         }
