@@ -373,7 +373,7 @@ declare const Buffer: typeof Bytes;
         ) {
           return new Response(
             JSON.stringify({
-              version: "15.0.0",
+              version: input.includes("@zwave-js/shared") ? "15.15.1" : "15.15.3",
             })
           );
         }
