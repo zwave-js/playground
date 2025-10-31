@@ -151,16 +151,7 @@ function App({
   }, [logs.length, autoScroll, scrollToBottom]);
 
   async function getPort(): Promise<void> {
-    const port = await navigator.serial.requestPort({
-      filters: [
-        // CP2102
-        { usbVendorId: 0x10c4, usbProductId: 0xea60 },
-        // Nabu Casa ESP bridge, first EVT revision
-        { usbVendorId: 0x1234, usbProductId: 0x5678 },
-        // Nabu Casa ESP bridge, uses Espressif VID/PID
-        { usbVendorId: 0x303a, usbProductId: 0x4001 },
-      ],
-    });
+    const port = await navigator.serial.requestPort();
 
     await port.open({ baudRate: 115200 });
     window.port = port;
