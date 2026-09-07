@@ -29,3 +29,7 @@ You can embed the playground in your own website using an iframe. Click the **Em
 ```
 
 We recommend a height of at least `750px` for the iframe.
+
+## Contributing
+
+AI-assisted contributions are welcome when you personally review, understand, and can explain every change. Autonomous-agent contributions and unreviewed AI-generated communication are prohibited. Read the full [AI policy](./AI_POLICY.md) before contributing.
